@@ -3,7 +3,7 @@ __author__ = 'adomas'
 import numpy as np
 import pandas as pd
 from numpy import linalg
-import matplotlib.pyplot as plt
+import random
 
 ####### PARAMETERS ########
 
@@ -74,6 +74,44 @@ def E_out(N, n):
     return sum(data_out['y'] != np.sign((data_out_subset*beta).sum(axis=1)))/data_out.shape[0]
 
 
+
+# misclassified array function: returns array of misclassified points indeces
+def misclassified(data, w):
+    wrong = []
+    for i, row in data.iterrows():
+        if np.sign(np.dot(row[:3].values, w)) != row.y:
+            wrong.append(i)
+    tmp = row
+    return wrong
+
+
+# does perceptron and returns count of itterations
+def perceptron(data, w):
+    counter = 0
+    wrong = misclassified(data, w)
+    while len(wrong) != 0:
+        index = random.choice(wrong)
+        row = data.irow(index)
+        w = w + row[:3].values*row.y
+        wrong = misclassified(data, w)
+        counter += 1
+    return counter
+
+
+# calculates weights with linear regression and perceptron finalizes them
+def lr_perceptron(N):
+    # target function
+    f = target_function()
+    # generating data
+    data = signs(data_set(N), f)
+    # calculating beta
+    beta = beta_hat(data)
+    # perceptron
+    return perceptron(data, beta)
+
+
+###### Answers ##########
+
 # 5 question answer
 e_ins = []
 [e_ins.append(E_in(100)) for i in np.arange(1000)]
@@ -83,3 +121,8 @@ print(np.mean(e_ins))
 e_outs = []
 [e_outs.append(E_out(100, 1000)) for i in np.arange(1000)]
 print(np.mean(e_outs))
+
+# 7 question answer
+counts = []
+[counts.append(lr_perceptron(10)) for i in np.arange(1000)]
+print(np.mean(counts))

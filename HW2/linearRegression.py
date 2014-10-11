@@ -5,14 +5,6 @@ import pandas as pd
 from numpy import linalg
 import random
 
-####### PARAMETERS ########
-
-# number of points
-N = 100
-# number of points for out sample error
-
-####### Functions #####
-
 
 # generates data frame of N points
 def data_set(N):
@@ -40,7 +32,7 @@ def signs(data_set, target_function):
 
 # calculates beta hat of regression
 def beta_hat(data):
-    X = data[['x0', 'x1', 'x2']].as_matrix()
+    X = data.drop('y', axis=1).as_matrix()
     y = data['y'].as_matrix()
     return np.dot(np.dot(linalg.inv(np.dot(X.transpose(), X)), X.transpose()), y)
 
@@ -72,7 +64,6 @@ def E_out(N, n):
     # subsetting data
     data_out_subset = data_out[['x0', 'x1', 'x2']].as_matrix()
     return sum(data_out['y'] != np.sign((data_out_subset*beta).sum(axis=1)))/data_out.shape[0]
-
 
 
 # misclassified array function: returns array of misclassified points indeces

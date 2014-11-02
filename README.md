@@ -1,4 +1,4 @@
-Learning-from-data
+Learning from data
 ==================
 
-Learning from data scripts
+edX course Learning from data from CaltechX scripts. 

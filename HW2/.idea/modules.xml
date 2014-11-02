@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../HW1/.idea/HW1.iml" filepath="$PROJECT_DIR$/../HW1/.idea/HW1.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/HW2.iml" filepath="$PROJECT_DIR$/.idea/HW2.iml" />
+      <module fileurl="file://$USER_HOME$/web-scraping/.idea/web-scraping.iml" filepath="$USER_HOME$/web-scraping/.idea/web-scraping.iml" />
+      <module fileurl="file://$USER_HOME$/webScraping/.idea/webScraping.iml" filepath="$USER_HOME$/webScraping/.idea/webScraping.iml" />
     </modules>
   </component>
 </project>

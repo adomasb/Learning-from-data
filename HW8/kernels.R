@@ -68,3 +68,35 @@ for (c in C){
 }
 
 # Q6
+
+# a FALSE
+model <- svm(digit~., data = train15, type = 'C-classification',
+             scale = FALSE,shrinking = FALSE,
+             kernel = 'polynomial', degree = 5,
+             gamma = 1, coef0 = 1, cost = 0.0001)
+
+sum(predict(model, train15) != train15[, 1])
+
+# b TRUE
+model <- svm(digit~., data = train15, type = 'C-classification',
+             scale = FALSE,shrinking = FALSE,
+             kernel = 'polynomial', degree = 5,
+             gamma = 1, coef0 = 1, cost = 0.001)
+
+model$nSV
+
+# c False
+model <- svm(digit~., data = train15, type = 'C-classification',
+             scale = FALSE,shrinking = FALSE,
+             kernel = 'polynomial', degree = 2,
+             gamma = 1, coef0 = 1, cost = 0.01)
+
+sum(predict(model, train15) != train15[, 1])
+
+# d FALSE
+model <- svm(digit~., data = train15, type = 'C-classification',
+             scale = FALSE,shrinking = FALSE,
+             kernel = 'polynomial', degree = 5,
+             gamma = 1, coef0 = 1, cost = 1)
+
+sum(predict(model, test15) != test15[, 1])

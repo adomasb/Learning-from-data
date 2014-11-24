@@ -6,8 +6,10 @@ library(Hmisc)
 # data
 train <- data.table(read.table("/home/adomas/Learning/Learning-from-data/HW8/train.txt"))
 test <- data.table(read.table("/home/adomas/Learning/Learning-from-data/HW8/test.txt"))
+
 train <- data.table(read.table("/home/adomas/Learning-from-data/HW8/train.txt"))
 test <- data.table(read.table("/home/adomas/Learning-from-data/HW8/test.txt"))
+
 setnames(train, c("digit", "x1", "x2"))
 setnames(test, c("digit", "x1", "x2"))
 
@@ -104,49 +106,63 @@ model <- svm(digit~., data = train15, type = 'C-classification',
 
 sum(predict(model, test15) != test15[, 1])
 
-#######################################
+####### Q 7 & 8
 
-train15 <- filter(train, digit %in% c(1, 5)) %>%
+Q <- 2
+C <- c(0.0001, 0.001, 0.01, 0.1, 1)
+
+error <- matrix(NA, nrow = 1, ncol = 5)
+train15 <- filter(train, digit %in% c(1, 5))
+
+
+for (times in 1:100){
+  training <- train15[sample(nrow(train15))] %>%
+    as.matrix()
+  Eout <- c()
+  for (c in C){
+    model <- svm(digit~., data = training, type = 'C-classification',
+                 scale = FALSE,shrinking = FALSE,
+                 kernel = 'polynomial', degree = Q,
+                 gamma = 1, coef0 = 1, cost = c,
+                 cross = 10)
+      
+    Eout <- c(Eout, 1-model$tot.accuracy/100)
+  }
+  error <- rbind(error, Eout)
+  print(times)
+}
+error <- error[-1,]
+
+# Q7
+table(apply(error, 1, which.min))
+
+# Q8
+apply(error, 2, mean)
+
+######### Q 9 & 10
+
+C <- c(0.01, 1, 100, 10e4, 10e6)
+Ein <- c()
+Eout <- c()
+
+train15 <- filter(train, digit %in% c(1,5)) %>%
   as.matrix()
 
 test15 <- filter(test, digit %in% c(1, 5)) %>%
   as.matrix()
 
-Q <- 2
-C <- c(0.0001, 0.001, 0.01, 0.1, 1)
-
-splits <- data.table(from=c(1, seq(157, 1405, 156)), to=c(seq(156, 1404, 156), nrow(train15)))
-
-for (times in 1:100){
-  data <- filter(train, digit %in% c(1, 5)) %>%
-    sample_frac(size = 1, replace = FALSE) %>% 
-    as.matrix()
+for (c in C){
   
-  for (i in 1:10){
-    Eout <- c()
-    for (c in C){
-      test <- data[splits[i, from]:splits[i, to], ]
-      train <- data[setdiff(1:1561, splits[i, from]:splits[i, to]), ]
-      
-      model <- svm(digit~., data = train, type = 'C-classification',
-                   scale = FALSE,shrinking = FALSE,
-                   kernel = 'polynomial', degree = 5,
-                   gamma = 1, coef0 = 1, cost = c)
-      
-      Eout <- c(Eout, sum(predict(model, test) != test[,1]))
-    }
-    selected <- which.min(Eout)
-  }
+  model <- svm(digit~., data = train15, type = 'C-classification',
+               scale = FALSE,shrinking = FALSE,
+               kernel = 'radial', gamma = 1, cost = c)
   
-  
+  Ein <- c(Ein, sum(predict(model, train15) != train15[, 1])/nrow(train15))
+  Eout <- c(Eout, sum(predict(model, test15) != test15[, 1])/nrow(test15))
 }
 
+# Q9
+which.min(Ein)
 
-
-trainData <- filter(train, digit %in% c(1, 5)) %>%
-  sample_frac(size = 1, replace = FALSE) %>% 
-  mutate(fold = cut2(1:1561, cuts=splits)) %>%
-  as.matrix()
-
-
-
+# Q10
+which.min(Eout)

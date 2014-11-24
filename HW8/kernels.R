@@ -1,10 +1,13 @@
 library(e1071)
 library(data.table)
 library(dplyr)
+library(Hmisc)
 
 # data
 train <- data.table(read.table("/home/adomas/Learning/Learning-from-data/HW8/train.txt"))
 test <- data.table(read.table("/home/adomas/Learning/Learning-from-data/HW8/test.txt"))
+train <- data.table(read.table("/home/adomas/Learning-from-data/HW8/train.txt"))
+test <- data.table(read.table("/home/adomas/Learning-from-data/HW8/test.txt"))
 setnames(train, c("digit", "x1", "x2"))
 setnames(test, c("digit", "x1", "x2"))
 
@@ -100,3 +103,50 @@ model <- svm(digit~., data = train15, type = 'C-classification',
              gamma = 1, coef0 = 1, cost = 1)
 
 sum(predict(model, test15) != test15[, 1])
+
+#######################################
+
+train15 <- filter(train, digit %in% c(1, 5)) %>%
+  as.matrix()
+
+test15 <- filter(test, digit %in% c(1, 5)) %>%
+  as.matrix()
+
+Q <- 2
+C <- c(0.0001, 0.001, 0.01, 0.1, 1)
+
+splits <- data.table(from=c(1, seq(157, 1405, 156)), to=c(seq(156, 1404, 156), nrow(train15)))
+
+for (times in 1:100){
+  data <- filter(train, digit %in% c(1, 5)) %>%
+    sample_frac(size = 1, replace = FALSE) %>% 
+    as.matrix()
+  
+  for (i in 1:10){
+    Eout <- c()
+    for (c in C){
+      test <- data[splits[i, from]:splits[i, to], ]
+      train <- data[setdiff(1:1561, splits[i, from]:splits[i, to]), ]
+      
+      model <- svm(digit~., data = train, type = 'C-classification',
+                   scale = FALSE,shrinking = FALSE,
+                   kernel = 'polynomial', degree = 5,
+                   gamma = 1, coef0 = 1, cost = c)
+      
+      Eout <- c(Eout, sum(predict(model, test) != test[,1]))
+    }
+    selected <- which.min(Eout)
+  }
+  
+  
+}
+
+
+
+trainData <- filter(train, digit %in% c(1, 5)) %>%
+  sample_frac(size = 1, replace = FALSE) %>% 
+  mutate(fold = cut2(1:1561, cuts=splits)) %>%
+  as.matrix()
+
+
+
